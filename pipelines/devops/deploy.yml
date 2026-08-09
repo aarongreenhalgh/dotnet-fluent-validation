@@ -1,0 +1,27 @@
+trigger: none
+pr: none
+
+pool:
+  vmImage: ubuntu-latest
+
+stages:
+  - stage: Deploy
+    displayName: Deploy dotnet-fluent-validation
+    jobs:
+      - deployment: Deploy
+        environment: production
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - checkout: self
+                - task: UseDotNet@2
+                  inputs:
+                    packageType: sdk
+                    version: 8.0.x
+                - script: |
+                    PROJ=$(find src -name "*.csproj" | head -n 1)
+                    dotnet publish "$PROJ" -c Release -o $(Build.ArtifactStagingDirectory)
+                  displayName: Publish
+                - script: echo "Deploy dotnet-fluent-validation artifact to target environment."
+                  displayName: Deploy placeholder
